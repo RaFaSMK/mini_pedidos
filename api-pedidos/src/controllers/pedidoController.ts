@@ -1,0 +1,34 @@
+import { Request, Response } from "express";
+import { PedidoService } from "../services/pedidoService";
+
+const pedidoService = new PedidoService()
+
+export class PedidoController{
+  async listar(req: Request, res: Response){
+    try{
+      const pedidos = await pedidoService.listar()
+      res.json(pedidos)
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({ message: "Erro ao listar pedidos" })
+    }
+  }
+
+  async criar(req: Request, res: Response){
+    try{
+      const { cliente_id, produtos_ids } = req.body
+
+      if(!cliente_id || !produtos_ids || !Array.isArray(produtos_ids)){
+        return res.status(400).json({
+          message: "cliente_id e produtos_id (array) são obrigatórios",
+        })
+      }
+      
+      const pedido = await pedidoService.criar(Number(cliente_id), produtos_ids)
+      res.status(201).json(pedido)
+    } catch (error: any){
+      console.error(error)
+      res.status(400).json({ message: error.message || "Erro ao criar pedido"})
+    }
+  }
+}

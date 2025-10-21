@@ -1,36 +1,148 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎫 Oticket - Sistema de Gerenciamento
 
-## Getting Started
+Sistema completo de gerenciamento de clientes, produtos e pedidos desenvolvido com Next.js 14, TypeScript e TailwindCSS.
 
-First, run the development server:
+## 📋 Índice
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Instalação](#instalação)
+- [Como Usar](#como-usar)
+- [Funcionalidades](#funcionalidades)
+- [API Endpoints](#api-endpoints)
+- [Deploy](#deploy)
+
+---
+
+## 🎯 Sobre o Projeto
+
+O Oticket é um sistema web para gerenciamento de vendas de ingressos, permitindo o cadastro e controle de clientes, produtos e pedidos de forma intuitiva e responsiva.
+
+### ✨ Diferenciais
+
+- ✅ Interface moderna e responsiva
+- ✅ Componentização organizada
+- ✅ TypeScript para type safety
+- ✅ Loading states e feedback visual
+- ✅ Validação de formulários
+- ✅ Integração completa com API
+- ✅ Docker Compose configurado
+- ✅ Código limpo e documentado
+
+---
+
+## 🚀 Tecnologias Utilizadas
+
+### Frontend
+- **Next.js 14** - Framework React
+- **TypeScript** - Tipagem estática
+- **TailwindCSS** - Estilização
+- **Axios** - Requisições HTTP
+- **Lucide React** - Ícones
+
+### Backend (opcional)
+- **Node.js** - Runtime
+- **Express** - Framework web
+- **Prisma** - ORM
+- **PostgreSQL** - Banco de dados
+
+### DevOps
+- **Docker** - Containerização
+- **Docker Compose** - Orquestração
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+oticket/
+├── src/
+│   ├── app/
+│   │   ├── dashboard/
+│   │   │   └── page.tsx          # Página principal do dashboard
+│   │   ├── login/
+│   │   │   └── page.tsx          # Página de login
+│   │   └── layout.tsx
+│   │
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── Sidebar.tsx       # Menu lateral
+│   │   │   ├── SidebarButton.tsx
+│   │   │   └── LogoutSidebarButton.tsx
+│   │   │
+│   │   ├── ui/
+│   │   │   ├── PageHeader.tsx    # Cabeçalho de páginas
+│   │   │   ├── SearchBar.tsx     # Barra de pesquisa
+│   │   │   ├── StatCard.tsx      # Cards de estatística
+│   │   │   ├── StatusBadge.tsx   # Badge de status
+│   │   │   ├── Table.tsx         # Tabela reutilizável
+│   │   │   ├── Modal.tsx         # Modal genérico
+│   │   │   ├── Input.tsx         # Input customizado
+│   │   │   ├── Select.tsx        # Select dropdown
+│   │   │   ├── Toast.tsx         # Notificações
+│   │   │   └── EmptyState.tsx    # Estado vazio
+│   │   │
+│   │   └── pages/
+│   │       ├── DashboardHome.tsx # Dashboard principal
+│   │       ├── ClientesPage.tsx  # Página de clientes
+│   │       ├── ProdutosPage.tsx  # Página de produtos
+│   │       └── PedidosPage.tsx   # Página de pedidos
+│   │
+│   ├── services/
+│   │   ├── clienteService.ts     # Serviço de clientes
+│   │   ├── produtoService.ts     # Serviço de produtos
+│   │   └── pedidoService.ts      # Serviço de pedidos
+│   │
+│   ├── lib/
+│   │   └── api.ts                # Configuração do Axios
+│   │
+│   └── types/
+│       └── index.ts              # Tipos TypeScript
+│
+├── public/
+│   └── logo.png
+│
+├── .env.local                    # Variáveis de ambiente
+├── tailwind.config.js
+├── tsconfig.json
+├── package.json
+└── docker-compose.yml
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 💻 Instalação
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Pré-requisitos
 
-## Learn More
+- Node.js 18+
+- npm ou yarn
+- Docker (opcional)
 
-To learn more about Next.js, take a look at the following resources:
+### Passo a Passo
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Clone o repositório**
+```bash
+git clone https://github.com/seu-usuario/oticket.git
+cd oticket
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Instale as dependências**
+```bash
+npm install
+# ou
+yarn install
+```
 
-## Deploy on Vercel
+3. **Configure as variáveis de ambiente**
+```bash
+cp .env.example .env.local
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Edite o arquivo `.env.local`:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. **Execute o

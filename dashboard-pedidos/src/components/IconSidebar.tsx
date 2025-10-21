@@ -7,7 +7,7 @@ interface IconProps extends LucideProps {
 }
 
 export default function Icon({ name, size = 20, color = "white", ...props }: IconProps) {
-  const LucideIcon = Icons[name] as React.FC<LucideProps>; // <-- forçando o tipo certo
+  const LucideIcon = Icons[name] as React.FC<LucideProps>; 
 
   if (!LucideIcon) {
     console.warn(`Ícone "${name}" não encontrado em lucide-react`);
