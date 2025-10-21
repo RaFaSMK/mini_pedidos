@@ -1,0 +1,14 @@
+{
+  "sqltools.connections": [
+    {
+      "ssh": "Disabled",
+      "previewLimit": 50,
+      "server": "172.21.31.152",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "api_pedidos",
+      "database": "api_pedidos",
+      "username": "pmfdtidev"
+    }
+  ]
+}
