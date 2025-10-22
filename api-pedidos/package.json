@@ -2,10 +2,9 @@
   "name": "api-pedidos",
   "version": "1.0.0",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "dev": "npx tsx watch src/server.ts",
-    "start": "npx tsx src/server.ts",
+    "start": "npx prisma migrate deploy && node dist/server.js",
     "build": "tsc",
     "seed": "npx tsx scripts/prisma-seed.ts",
     "migrate:dev": "npx prisma migrate dev",

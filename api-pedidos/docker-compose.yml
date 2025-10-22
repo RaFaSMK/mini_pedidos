@@ -1,0 +1,32 @@
+services:
+  backend:
+    build: . 
+    ports:
+      - "3001:3001" 
+    environment:
+      DATABASE_URL: "postgresql://pedidos:mini@pedidos25@db:5432/mini_pedidos"
+    env_file:
+      - .env
+    depends_on:
+      - db 
+    networks:
+      - minha-rede
+
+  db:
+    image: postgres:15-trixie
+    environment:
+      POSTGRES_USER: pedidos
+      POSTGRES_PASSWORD: mini@pedidos25
+      POSTGRES_DB: mini_pedidos
+    volumes:
+      - db-data:/var/lib/postgresql/data 
+    networks:
+      - minha-rede
+
+networks:
+  minha-rede:
+    driver: bridge
+
+volumes:
+  db-data:
+    driver: local

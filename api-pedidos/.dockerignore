@@ -1,0 +1,15 @@
+# Ignora dependências (serão instaladas dentro do container)
+node_modules
+
+# Ignora o output da compilação (será gerado dentro do container)
+dist
+
+# Ignora arquivos de ambiente (serão injetados pelo Docker Compose)
+.env
+
+# Ignora arquivos do Git, Docker e README
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+README.md
