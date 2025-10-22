@@ -75,10 +75,6 @@ export default function DashboardHome({ showToast }: DashboardHomeProps) {
                     <p className="text-sm text-gray-600">{pedido.produto}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-gray-900">R$ {pedido.total.toFixed(2)}</p>
-                  <StatusBadge status={pedido.status} />
-                </div>
               </div>
             ))}
           </div>

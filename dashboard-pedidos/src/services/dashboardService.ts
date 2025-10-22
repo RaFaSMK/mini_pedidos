@@ -10,7 +10,6 @@ interface ApiPedido {
   id: number;
   cliente: { nome: string; };
   produtos: ApiProdutoItem[];
-  total: number;
   status: string;
 }
 
@@ -30,7 +29,6 @@ export interface UltimoPedido {
   id: number;
   cliente: string;
   produto: string;
-  total: number;
   status: string;
 }
 
@@ -65,7 +63,6 @@ export const getDashboardData = async (): Promise<DashboardData> => {
       id: pedido.id,
       cliente: pedido.cliente.nome,
       produto: pedido.produtos.map((p) => p.produto.nome).join(', '),
-      total: pedido.total || 0,
       status: pedido.status,
     }));
 
