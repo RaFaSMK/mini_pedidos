@@ -6,7 +6,6 @@ import { UltimoPedido, DashboardStats } from "@/services/dashboardService"
 
 import PageHeader from "../PageHeader"
 import StatCard from "../StatCard"
-import StatusBadge from "../StatusBadge"
 import EmptyState from "../EmptyState"
 import { ShoppingCart } from "lucide-react"
 

@@ -4,7 +4,7 @@ services:
     ports:
       - "3001:3001" 
     environment:
-      DATABASE_URL: "postgresql://pedidos:mini@pedidos25@db:5432/mini_pedidos"
+      DATABASE_URL: "postgresql://pedidos:minipedidos25@db:5432/mini_pedidos"
     env_file:
       - .env
     depends_on:
@@ -16,12 +16,14 @@ services:
     image: postgres:15-trixie
     environment:
       POSTGRES_USER: pedidos
-      POSTGRES_PASSWORD: mini@pedidos25
+      POSTGRES_PASSWORD: minipedidos25
       POSTGRES_DB: mini_pedidos
     volumes:
       - db-data:/var/lib/postgresql/data 
     networks:
       - minha-rede
+    ports:
+    - "5432:5432"
 
 networks:
   minha-rede:

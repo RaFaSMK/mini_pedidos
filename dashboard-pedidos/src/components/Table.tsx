@@ -3,7 +3,6 @@
 import { LucideIcon } from "lucide-react"
 import { ReactNode } from "react"
 
-// ADICIONE 'export' AQUI
 export interface Column<T> {
   label: string
   key?: keyof T
@@ -11,7 +10,6 @@ export interface Column<T> {
   className?: string
 }
 
-// E 'export' AQUI
 export interface Action<T> {
   icon: LucideIcon
   onClick: (row: T) => void
@@ -25,8 +23,6 @@ interface TableProps<T> {
   actions?: Action<T>[]
 }
 
-// 2. Torne a função do componente genérica
-// <T extends object> diz ao React que T será um objeto
 export default function Table<T extends object>({ columns, data, actions }: TableProps<T>) {
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -42,13 +38,11 @@ export default function Table<T extends object>({ columns, data, actions }: Tabl
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
-          {/* 3. 'row' agora é corretamente tipado como T */}
           {data.map((row, idx) => (
             <tr key={idx} className="hover:bg-gray-50 transition-colors">
               {columns.map((col, colIdx) => (
                 <td key={colIdx} className={`px-6 py-4 text-sm ${col.className || 'text-gray-600'}`}>
                   {
-                    // 4. Lógica de renderização corrigida e segura
                     col.render
                       ? col.render(row)
                       : (col.key ? row[col.key] : null) as ReactNode

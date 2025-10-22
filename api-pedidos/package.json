@@ -6,7 +6,8 @@
     "dev": "npx tsx watch src/server.ts",
     "start": "npx prisma migrate deploy && node dist/server.js",
     "build": "tsc",
-    "seed": "npx tsx scripts/prisma-seed.ts",
+    "seed": "npx tsx scripts/prisma-seed.ts", 
+    "test": "jest --runInBand", 
     "migrate:dev": "npx prisma migrate dev",
     "migrate:deploy": "npx prisma migrate deploy",
     "studio": "npx prisma studio"
@@ -19,14 +20,23 @@
     "@prisma/client": "^6.17.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "swagger-ui-express": "^5.0.1",
+    "yaml": "^2.8.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.9.1",
+    "@types/supertest": "^6.0.3",
+    "@types/swagger-ui-express": "^4.1.8",
+    "@types/yaml": "^1.9.6",
+    "jest": "^30.2.0",
     "nodemon": "^3.1.10",
     "prisma": "^6.17.1",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }

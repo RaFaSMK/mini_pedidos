@@ -9,7 +9,9 @@ export class ClienteController {
       const clientes = await clienteService.listar();
       res.json(clientes);
     } catch (error) {
-      console.error(error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(error);
+      }
       res.status(500).json({ message: "Erro ao listar clientes" });
     }
   }
@@ -24,7 +26,9 @@ export class ClienteController {
 
       res.json(cliente);
     } catch (error) {
-      console.error(error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(error);
+      }
       res.status(500).json({ message: "Erro ao buscar cliente" });
     }
   }
@@ -40,7 +44,9 @@ export class ClienteController {
       const cliente = await clienteService.criar(nome, email);
       res.status(201).json(cliente);
     } catch (error: any) {
-      console.error(error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(error);
+      }
       res.status(400).json({ message: error.message || "Erro ao criar cliente" });
     }
   }
@@ -59,7 +65,9 @@ export class ClienteController {
       const clienteAtualizado = await clienteService.editar(Number(id), { nome, email });
       res.json(clienteAtualizado);
     } catch (error: any) {
-      console.error(error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(error);
+      }
       res.status(400).json({ message: error.message || "Erro ao editar cliente" });
     }
   }
@@ -72,7 +80,9 @@ export class ClienteController {
       await clienteService.deletar(Number(id));
       res.json({ message: "Cliente deletado com sucesso" });
     } catch (error: any) {
-      console.error(error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(error);
+      }
       res.status(400).json({ message: error.message || "Erro ao deletar cliente" });
     }
   }

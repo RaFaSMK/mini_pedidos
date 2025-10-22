@@ -1,0 +1,619 @@
+openapi: 3.0.0
+info:
+  title: API Mini Pedidos (Oticket)
+  version: 1.0.0
+  description: Documentação da API para o sistema de mini pedidos.
+servers:
+  - url: http://localhost:3001 # Ajuste a porta se usar outra no .env
+    description: Servidor de Desenvolvimento
+tags:
+  - name: Clientes
+    description: Operações relacionadas a clientes
+  - name: Produtos
+    description: Operações relacionadas a produtos
+  - name: Pedidos
+    description: Operações relacionadas a pedidos
+
+paths:
+  # ---------------- Clientes ----------------
+  /api/clientes:
+    get:
+      tags: [Clientes]
+      summary: Lista todos os clientes
+      description: Retorna um array com todos os clientes cadastrados, ordenados por ID decrescente.
+      responses:
+        '200':
+          description: Lista de clientes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cliente'
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+    post:
+      tags: [Clientes]
+      summary: Cria um novo cliente
+      description: Adiciona um novo cliente ao banco de dados. Verifica se o email já existe.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NovoCliente'
+      responses:
+        '201':
+          description: Cliente criado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+        '400':
+          description: Dados inválidos (nome ou email faltando, ou email já cadastrado).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+
+  /api/clientes/{id}:
+    get:
+      tags: [Clientes]
+      summary: Busca um cliente por ID
+      description: Retorna os detalhes de um cliente específico, incluindo seus pedidos.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do cliente a ser buscado.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cliente encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClienteComPedidos' # Schema que inclui pedidos
+        '400':
+          description: ID não fornecido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '404':
+          description: Cliente não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+    put:
+      tags: [Clientes]
+      summary: Atualiza um cliente existente
+      description: Atualiza o nome e/ou email de um cliente existente. Verifica se o novo email já está em uso por outro cliente.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do cliente a ser atualizado.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditarCliente'
+      responses:
+        '200':
+          description: Cliente atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+        '400':
+          description: Dados inválidos (ID faltando, nem nome nem email informados, ou email já em uso).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '404':
+          description: Cliente não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico' # O service lança erro, capturado como 400 no controller, mas pode ser 404
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+    delete:
+      tags: [Clientes]
+      summary: Deleta um cliente
+      description: Remove um cliente do banco de dados.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do cliente a ser deletado.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cliente deletado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Cliente deletado com sucesso"
+        '400':
+          description: ID não fornecido ou erro ao deletar (cliente não encontrado).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '404':
+           description: Cliente não encontrado (ocorre se o service lançar erro específico não tratado como 404 no controller).
+           content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+
+  # ---------------- Produtos ----------------
+  /api/produtos:
+    get:
+      tags: [Produtos]
+      summary: Lista todos os produtos
+      description: Retorna um array com todos os produtos cadastrados.
+      responses:
+        '200':
+          description: Lista de produtos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Produto'
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+    post:
+      tags: [Produtos]
+      summary: Cria um novo produto
+      description: Adiciona um novo produto ao banco de dados.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NovoProduto'
+      responses:
+        '201':
+          description: Produto criado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produto'
+        '400':
+          description: Dados inválidos (nome ou preço faltando).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+
+  /api/produtos/{id}:
+    put:
+      tags: [Produtos]
+      summary: Atualiza um produto existente
+      description: Atualiza o nome e/ou preço de um produto existente.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do produto a ser atualizado.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditarProduto'
+      responses:
+        '200':
+          description: Produto atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produto'
+        '400':
+          description: Dados inválidos (ID faltando, nem nome nem preço informados).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '404':
+          description: Produto não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+    delete:
+      tags: [Produtos]
+      summary: Deleta um produto
+      description: Remove um produto do banco de dados.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do produto a ser deletado.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Produto deletado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produto deletado com sucesso"
+        '400':
+          description: ID não fornecido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '404':
+          description: Produto não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+
+  # ---------------- Pedidos ----------------
+  /api/pedidos:
+    get:
+      tags: [Pedidos]
+      summary: Lista todos os pedidos
+      description: Retorna um array com todos os pedidos, incluindo detalhes do cliente e produtos associados. Ordenados por ID decrescente.
+      responses:
+        '200':
+          description: Lista de pedidos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PedidoCompleto'
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+    post:
+      tags: [Pedidos]
+      summary: Cria um novo pedido
+      description: Cria um novo pedido associando um cliente e um ou mais produtos. O status inicial é PENDENTE.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NovoPedido'
+      responses:
+        '201':
+          description: Pedido criado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PedidoCompleto'
+        '400':
+          description: Dados inválidos (cliente_id ou produtos_ids faltando/inválido, cliente ou produto não encontrado).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+
+  /api/pedidos/{id}:
+    put:
+      tags: [Pedidos]
+      summary: Atualiza um pedido existente
+      description: Atualiza o status e/ou a lista de produtos de um pedido existente. Se produtos_ids for fornecido, a lista antiga é substituída.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do pedido a ser atualizado.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditarPedido'
+      responses:
+        '200':
+          description: Pedido atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PedidoCompleto'
+        '400':
+          description: Dados inválidos (ID faltando, ou nem status nem produtos_ids informados).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '404':
+          description: Pedido não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+    delete:
+      tags: [Pedidos]
+      summary: Deleta um pedido
+      description: Remove um pedido e suas associações com produtos do banco de dados.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do pedido a ser deletado.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pedido deletado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Pedido deletado com sucesso"
+        '400':
+          description: ID não fornecido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '404':
+          description: Pedido não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+        '500':
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroGenerico'
+
+components:
+  schemas:
+    # --- Clientes ---
+    Cliente:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        nome:
+          type: string
+          example: 'Rafael Chaves Souza'
+        email:
+          type: string
+          format: email
+          example: 'rafael@email.com'
+    NovoCliente:
+      type: object
+      required: [nome, email]
+      properties:
+        nome:
+          type: string
+          example: 'Maria Silva'
+        email:
+          type: string
+          format: email
+          example: 'maria@email.com'
+    EditarCliente:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: 'Maria Silva Santos'
+        email:
+          type: string
+          format: email
+          example: 'maria.santos@email.com'
+      minProperties: 1 # Exige pelo menos nome ou email
+
+    # --- Produtos ---
+    Produto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        nome:
+          type: string
+          example: 'Ingresso Show Rock'
+        preco:
+          type: number
+          format: float
+          example: 120.50
+    NovoProduto:
+      type: object
+      required: [nome, preco]
+      properties:
+        nome:
+          type: string
+          example: 'Ingresso Show Pop'
+        preco:
+          type: number
+          format: float
+          example: 99.90
+    EditarProduto:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: 'Ingresso Show Pop - Pista Premium'
+        preco:
+          type: number
+          format: float
+          example: 149.90
+      minProperties: 1 # Exige pelo menos nome ou preco
+
+    # --- Pedidos ---
+    PedidoProdutoItem: # Item da relação Pedido <-> Produto
+      type: object
+      properties:
+        produto:
+          $ref: '#/components/schemas/Produto'
+
+    PedidoBase: # Estrutura base do pedido
+       type: object
+       properties:
+         id:
+           type: integer
+           example: 101
+         cliente_id:
+           type: integer
+           example: 1
+         status:
+           type: string
+           enum: [PENDENTE, PAGO, CANCELADO] # Defina os status possíveis
+           example: 'PENDENTE'
+         data:
+           type: string
+           format: date-time
+           example: '2025-10-22T19:30:00Z'
+
+    PedidoCompleto: # Pedido com cliente e produtos incluídos (retorno das listagens/criação/edição)
+      allOf: # Combina PedidoBase com as relações
+        - $ref: '#/components/schemas/PedidoBase'
+        - type: object
+          properties:
+            cliente:
+              $ref: '#/components/schemas/Cliente'
+            produtos:
+              type: array
+              items:
+                $ref: '#/components/schemas/PedidoProdutoItem'
+
+    ClienteComPedidos: # Cliente com a lista de pedidos incluída (retorno do GET /clientes/{id})
+      allOf:
+        - $ref: '#/components/schemas/Cliente'
+        - type: object
+          properties:
+            pedidos:
+              type: array
+              items:
+                $ref: '#/components/schemas/PedidoBase' # Só a base do pedido, sem repetir cliente/produtos
+
+    NovoPedido:
+      type: object
+      required: [cliente_id, produtos_ids]
+      properties:
+        cliente_id:
+          type: integer
+          description: ID do cliente que está fazendo o pedido.
+          example: 1
+        produtos_ids:
+          type: array
+          description: Array com os IDs dos produtos a serem incluídos no pedido.
+          items:
+            type: integer
+          example: [10, 11]
+
+    EditarPedido:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PENDENTE, PAGO, CANCELADO]
+          description: Novo status do pedido.
+          example: 'PAGO'
+        produtos_ids:
+          type: array
+          description: Array com os IDs dos novos produtos (substituirá a lista antiga).
+          items:
+            type: integer
+          example: [12]
+      minProperties: 1 # Exige pelo menos status ou produtos_ids
+
+    # --- Erros ---
+    ErroGenerico:
+       type: object
+       properties:
+         message:
+           type: string
+           example: "Descrição detalhada do erro ocorrido"

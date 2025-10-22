@@ -8,8 +8,10 @@
     // See also https://aka.ms/tsconfig/module
     "module": "commonjs",
     "target": "es2020",
-    "types": [],
-    // For nodejs:
+    "types": [
+      "node",
+      "jest"
+    ], // <-- Adicione "node" e "jest"    // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
     // and npm install -D @types/node
@@ -38,5 +40,12 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
-  "include": ["src"]
+  "include": ["src"],
+  // --- ADICIONE OU MODIFIQUE ESTA PARTE ---
+  "exclude": [
+    "node_modules", // Sempre bom excluir explicitamente
+    "dist",         // Exclui a pasta de output
+    "jest.config.js" // Exclui o arquivo de config do Jest
+    // Adicione aqui outros arquivos .js da raiz se tiver (ex: "babel.config.js")
+  ]
 }

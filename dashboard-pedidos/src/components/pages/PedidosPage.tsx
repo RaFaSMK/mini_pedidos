@@ -10,7 +10,6 @@ import { Produto } from "@/services/produtoService"
 
 import PageHeader from "../PageHeader"
 import SearchBar from "../SearchBar"
-// 1. IMPORTE 'Column' E 'Action'
 import Table, { Column, Action } from "../Table"
 import Modal from "../Modal"
 import Select from "../Select"
