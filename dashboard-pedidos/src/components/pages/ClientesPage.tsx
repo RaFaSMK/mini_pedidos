@@ -14,8 +14,7 @@ interface Cliente {
   id: number
   nome: string
   email: string
-  telefone: string
-  cidade: string
+
 }
 
 interface ClientesPageProps {
@@ -25,8 +24,6 @@ interface ClientesPageProps {
 const initialFormData = {
   nome: '',
   email: '',
-  telefone: '',
-  cidade: ''
 }
 
 export default function ClientesPage({ showToast }: ClientesPageProps) {
@@ -34,7 +31,7 @@ export default function ClientesPage({ showToast }: ClientesPageProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(false)
-  
+
   const [formData, setFormData] = useState(initialFormData)
   const [editingId, setEditingId] = useState<number | null>(null)
 
@@ -53,13 +50,13 @@ export default function ClientesPage({ showToast }: ClientesPageProps) {
 
   useEffect(() => {
     fetchClientes()
-  }, [fetchClientes]) 
+  }, [fetchClientes])
 
   const closeModal = useCallback(() => {
     setShowModal(false)
     setEditingId(null)
     setFormData(initialFormData)
-  }, []) 
+  }, [])
 
   const handleOpenNewModal = useCallback(() => {
     setEditingId(null)
@@ -72,8 +69,6 @@ export default function ClientesPage({ showToast }: ClientesPageProps) {
     setFormData({
       nome: cliente.nome,
       email: cliente.email,
-      telefone: cliente.telefone,
-      cidade: cliente.cidade,
     })
     setShowModal(true)
   }, [])
@@ -117,8 +112,6 @@ export default function ClientesPage({ showToast }: ClientesPageProps) {
   const columns = [
     { label: 'Nome', key: 'nome', className: 'text-gray-900 font-medium' },
     { label: 'Email', key: 'email' },
-    { label: 'Telefone', key: 'telefone' },
-    { label: 'Cidade', key: 'cidade' }
   ]
 
   const actions = [
@@ -153,8 +146,6 @@ export default function ClientesPage({ showToast }: ClientesPageProps) {
       >
         <Input placeholder="Nome completo" value={formData.nome} onChange={(v) => setFormData({ ...formData, nome: v })} />
         <Input type="email" placeholder="Email" value={formData.email} onChange={(v) => setFormData({ ...formData, email: v })} />
-        <Input type="tel" placeholder="Telefone" value={formData.telefone} onChange={(v) => setFormData({ ...formData, telefone: v })} />
-        <Input placeholder="Cidade" value={formData.cidade} onChange={(v) => setFormData({ ...formData, cidade: v })} />
       </Modal>
     </div>
   )

@@ -7,16 +7,14 @@ import SearchBar from "../SearchBar"
 import Table from "../Table"
 import Modal from "../Modal"
 import Select from "../Select"
-import Input from "../Input"
 import EmptyState from "../EmptyState"
-import StatusBadge from "../StatusBadge"
 import { ShoppingCart, Eye, Edit2 } from "lucide-react"
 
 interface Pedido {
   id: number
-  cliente: string
+  cliente: Cliente | string
   clienteId: number
-  produto: string
+  produto: Produto | string
   produtoId: number
   quantidade: number
   total: number
@@ -42,7 +40,6 @@ interface PedidosPageProps {
 const initialFormData = {
   clienteId: '',
   produtoId: '',
-  quantidade: ''
 }
 
 export default function PedidosPage({ showToast }: PedidosPageProps) {
@@ -85,7 +82,7 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
       console.error(error)
     }
   }, [])
-  
+
   useEffect(() => {
     fetchPedidos()
     fetchClientes()
@@ -103,7 +100,6 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
     setFormData({
       clienteId: String(pedido.clienteId),
       produtoId: String(pedido.produtoId),
-      quantidade: String(pedido.quantidade)
     })
     setShowModal(true)
   }
@@ -115,23 +111,16 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
   }
 
   const handleSubmit = async () => {
-    const produto = produtos.find(p => p.id === parseInt(formData.produtoId))
-    const total = produto ? produto.preco * parseInt(formData.quantidade) : 0
-
     const payload = {
-      clienteId: parseInt(formData.clienteId),
-      produtoId: parseInt(formData.produtoId),
-      quantidade: parseInt(formData.quantidade),
-      total
+      cliente_id: parseInt(formData.clienteId),
+      produtos_ids: [parseInt(formData.produtoId)],
     }
 
     try {
       if (editingId) {
-        // --- LÓGICA DE EDIÇÃO ---
         await axios.put(`http://localhost:3001/api/pedidos/${editingId}`, payload)
         showToast('Pedido atualizado com sucesso!', 'success')
       } else {
-        // --- LÓGICA DE CRIAÇÃO ---
         await axios.post('http://localhost:3001/api/pedidos', payload)
         showToast('Pedido criado com sucesso!', 'success')
       }
@@ -145,20 +134,44 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
     }
   }
 
-  const filteredPedidos = pedidos.filter(p =>
-    p.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.produto.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredPedidos = pedidos.filter(p => {
+    const clienteNome = typeof p.cliente === 'object' ? p.cliente.nome : p.cliente
+    const produtoNome = typeof p.produto === 'object' ? p.produto.nome : p.produto
+
+    return (
+      clienteNome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      produtoNome?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  })
+
 
   const columns = [
-    { label: 'ID', key: 'id', render: (row: Pedido) => `#${row.id}`, className: 'text-gray-900 font-medium' },
-    { label: 'Cliente', key: 'cliente', className: 'text-gray-900' },
-    { label: 'Produto', key: 'produto' },
-    { label: 'Quantidade', key: 'quantidade' },
-    { label: 'Total', render: (row: Pedido) => `R$ ${row.total.toFixed(2)}`, className: 'text-gray-900 font-semibold' },
-    { label: 'Status', render: (row: Pedido) => <StatusBadge status={row.status} /> },
+    {
+      label: 'ID',
+      key: 'id',
+      render: (row: Pedido) => `#${row.id}`,
+      className: 'text-gray-900 font-medium'
+    },
+    {
+      label: 'Cliente',
+      key: 'cliente',
+      className: 'text-gray-900',
+      render: (row: Pedido) =>
+        typeof row.cliente === 'object'
+          ? row.cliente.nome
+          : row.cliente
+    },
+    {
+      label: 'Produto',
+      key: 'produto',
+      render: (row: Pedido) =>
+        typeof row.produto === 'object'
+          ? row.produto.nome
+          : row.produto
+    },
     { label: 'Data', key: 'data' }
   ]
+
 
   const actions = [
     { icon: Eye, onClick: (row: Pedido) => alert(`Visualizar pedido #${row.id}`), className: 'text-blue-600 hover:bg-blue-50', title: 'Visualizar' },
@@ -201,20 +214,6 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
           onChange={(v) => setFormData({ ...formData, produtoId: v })}
           placeholder="Selecione o produto"
         />
-        <Input
-          type="number"
-          placeholder="Quantidade"
-          value={formData.quantidade}
-          onChange={(v) => setFormData({ ...formData, quantidade: v })}
-        />
-        {formData.produtoId && formData.quantidade && (
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600">Total estimado:</p>
-            <p className="text-2xl font-bold text-gray-900">
-              R$ {((produtos.find(p => p.id === parseInt(formData.produtoId))?.preco || 0) * parseInt(formData.quantidade || '0')).toFixed(2)}
-            </p>
-          </div>
-        )}
       </Modal>
     </div>
   )

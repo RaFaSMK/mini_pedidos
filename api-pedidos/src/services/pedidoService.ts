@@ -39,4 +39,56 @@ export class PedidoService {
 
     return pedido;
   }
+
+  async editar(id: number, data: { status?: string; produtos_ids?: number[] }) {
+    const pedidoExistente = await prisma.pedido.findUnique({
+      where: { id },
+      include: { produtos: true },
+    });
+
+    if (!pedidoExistente) throw new Error("Pedido não encontrado");
+
+    if (data.produtos_ids && data.produtos_ids.length > 0) {
+      await prisma.pedidoProduto.deleteMany({
+        where: { pedido_id: id },
+      });
+
+      await prisma.pedidoProduto.createMany({
+        data: data.produtos_ids.map((produto_id) => ({
+          pedido_id: id,
+          produto_id,
+        })),
+      });
+    }
+
+    const pedidoAtualizado = await prisma.pedido.update({
+      where: { id },
+      data: {
+        status: data.status ?? pedidoExistente.status,
+      },
+      include: {
+        cliente: true,
+        produtos: {
+          include: { produto: true },
+        },
+      },
+    });
+
+    return pedidoAtualizado;
+  }
+
+  async deletar(id: number) {
+    const pedido = await prisma.pedido.findUnique({ where: { id } });
+    if (!pedido) throw new Error("Pedido não encontrado");
+
+    await prisma.pedidoProduto.deleteMany({
+      where: { pedido_id: id },
+    });
+
+    await prisma.pedido.delete({
+      where: { id },
+    });
+
+    return true;
+  }
 }

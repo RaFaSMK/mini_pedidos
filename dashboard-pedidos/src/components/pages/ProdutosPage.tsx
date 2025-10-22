@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import axios from "axios"
 import PageHeader from "../PageHeader"
 import SearchBar from "../SearchBar"
-import Table from "../Table" 
+import Table from "../Table"
 import Modal from "../Modal"
 import Input from "../Input"
 import EmptyState from "../EmptyState"
@@ -15,8 +15,6 @@ interface Produto {
   id: number
   nome: string
   preco: number
-  estoque: number
-  categoria: string
 }
 
 interface ProdutosPageProps {
@@ -25,9 +23,7 @@ interface ProdutosPageProps {
 
 const initialFormData = {
   nome: '',
-  preco: '', 
-  estoque: '', 
-  categoria: ''
+  preco: '',
 }
 
 export default function ProdutosPage({ showToast }: ProdutosPageProps) {
@@ -35,9 +31,9 @@ export default function ProdutosPage({ showToast }: ProdutosPageProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(false)
-  
+
   const [formData, setFormData] = useState(initialFormData)
-  
+
   const [editingId, setEditingId] = useState<number | null>(null)
 
   const fetchProdutos = useCallback(async () => {
@@ -74,8 +70,6 @@ export default function ProdutosPage({ showToast }: ProdutosPageProps) {
     setFormData({
       nome: produto.nome,
       preco: String(produto.preco),
-      estoque: String(produto.estoque),
-      categoria: produto.categoria,
     })
     setShowModal(true)
   }
@@ -84,7 +78,6 @@ export default function ProdutosPage({ showToast }: ProdutosPageProps) {
     const payload = {
       ...formData,
       preco: parseFloat(formData.preco) || 0,
-      estoque: parseInt(formData.estoque) || 0,
     }
 
     try {
@@ -96,7 +89,7 @@ export default function ProdutosPage({ showToast }: ProdutosPageProps) {
         showToast('Produto cadastrado com sucesso!', 'success')
       }
       closeModal()
-      fetchProdutos() 
+      fetchProdutos()
     } catch (error) {
       const action = editingId ? 'atualizar' : 'cadastrar'
       showToast(`Erro ao ${action} produto`, 'error')
@@ -109,7 +102,7 @@ export default function ProdutosPage({ showToast }: ProdutosPageProps) {
       try {
         await axios.delete(`http://localhost:3001/api/produtos/${id}`)
         showToast('Produto deletado com sucesso!', 'success')
-        fetchProdutos() 
+        fetchProdutos()
       } catch (error) {
         showToast('Erro ao deletar produto', 'error')
         console.error(error)
@@ -117,16 +110,13 @@ export default function ProdutosPage({ showToast }: ProdutosPageProps) {
     }
   }
 
-  const filteredProdutos = produtos.filter(p => 
-    p.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.categoria.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProdutos = produtos.filter(p =>
+    p.nome.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const columns = [
     { label: 'Nome', key: 'nome', className: 'text-gray-900 font-medium' },
-    { label: 'Preço', key: 'preco' }, 
-    { label: 'Estoque', key: 'estoque' },
-    { label: 'Categoria', key: 'categoria' }
+    { label: 'Preço', key: 'preco' },
   ]
 
   const actions = [
@@ -136,44 +126,42 @@ export default function ProdutosPage({ showToast }: ProdutosPageProps) {
 
   return (
     <div>
-      <PageHeader 
-        title="Produtos" 
+      <PageHeader
+        title="Produtos"
         subtitle="Gerencie seu catálogo de produtos"
-        buttonText="Novo Produto" 
-        onButtonClick={handleOpenNewModal} 
+        buttonText="Novo Produto"
+        onButtonClick={handleOpenNewModal}
       />
-      <SearchBar 
-        value={searchTerm} 
-        onChange={setSearchTerm} 
-        placeholder="Buscar por nome ou categoria..." 
+      <SearchBar
+        value={searchTerm}
+        onChange={setSearchTerm}
+        placeholder="Buscar por nome"
       />
-      
+
       {loading ? (
         <div className="text-center py-12">Carregando...</div>
       ) : filteredProdutos.length === 0 ? (
-        <EmptyState 
-          icon={Package} 
-          title="Nenhum produto encontrado" 
-          description="Adicione seu primeiro produto para começar" 
+        <EmptyState
+          icon={Package}
+          title="Nenhum produto encontrado"
+          description="Adicione seu primeiro produto para começar"
         />
       ) : (
-        <Table 
-          columns={columns} 
-          data={filteredProdutos} 
-          actions={actions} 
+        <Table
+          columns={columns}
+          data={filteredProdutos}
+          actions={actions}
         />
       )}
 
       <Modal
         isOpen={showModal}
-        onClose={closeModal} 
-        title={editingId ? "Editar Produto" : "Novo Produto"} 
+        onClose={closeModal}
+        title={editingId ? "Editar Produto" : "Novo Produto"}
         onSubmit={handleSubmit}
       >
-        <Input placeholder="Nome do produto" value={formData.nome} onChange={(v) => setFormData({...formData, nome: v})} />
-        <Input type="number" placeholder="Preço (ex: 19.99)" value={formData.preco} onChange={(v) => setFormData({...formData, preco: v})} />
-        <Input type="number" placeholder="Estoque" value={formData.estoque} onChange={(v) => setFormData({...formData, estoque: v})} />
-        <Input placeholder="Categoria" value={formData.categoria} onChange={(v) => setFormData({...formData, categoria: v})} />
+        <Input placeholder="Nome do produto" value={formData.nome} onChange={(v) => setFormData({ ...formData, nome: v })} />
+        <Input type="number" placeholder="Preço (ex: 19.99)" value={formData.preco} onChange={(v) => setFormData({ ...formData, preco: v })} />
       </Modal>
     </div>
   )

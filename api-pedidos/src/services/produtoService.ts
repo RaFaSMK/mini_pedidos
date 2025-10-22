@@ -10,4 +10,17 @@ export class ProdutoService {
       data: { nome, preco }
     })
   }
+
+  async editar(id: number, data: { nome?: string; preco?: number }) {
+    return prisma.produto.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deletar(id: number) {
+    return prisma.produto.delete({
+      where: { id },
+    });
+  }
 }

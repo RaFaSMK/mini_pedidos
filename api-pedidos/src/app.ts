@@ -11,9 +11,9 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-app.use("/clientes", clienteRoutes)
-app.use("/produtos", produtoRoutes)
-app.use("/pedidos", pedidoRoutes)
+app.use("/api/clientes", clienteRoutes)
+app.use("/api/produtos", produtoRoutes)
+app.use("/api/pedidos", pedidoRoutes)
 
 app.get("/", (req, res) => {
   res.send("Api rodando!")
