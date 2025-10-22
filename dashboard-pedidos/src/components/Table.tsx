@@ -1,28 +1,33 @@
 "use client"
 
 import { LucideIcon } from "lucide-react"
+import { ReactNode } from "react"
 
-interface Column {
+// ADICIONE 'export' AQUI
+export interface Column<T> {
   label: string
-  key?: string
-  render?: (row: any) => React.ReactNode
+  key?: keyof T
+  render?: (row: T) => ReactNode
   className?: string
 }
 
-interface Action {
+// E 'export' AQUI
+export interface Action<T> {
   icon: LucideIcon
-  onClick: (row: any) => void
+  onClick: (row: T) => void
   className: string
   title: string
 }
 
-interface TableProps {
-  columns: Column[]
-  data: any[]
-  actions?: Action[]
+interface TableProps<T> {
+  columns: Column<T>[]
+  data: T[]
+  actions?: Action<T>[]
 }
 
-export default function Table({ columns, data, actions }: TableProps) {
+// 2. Torne a função do componente genérica
+// <T extends object> diz ao React que T será um objeto
+export default function Table<T extends object>({ columns, data, actions }: TableProps<T>) {
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       <table className="w-full">
@@ -37,11 +42,17 @@ export default function Table({ columns, data, actions }: TableProps) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
+          {/* 3. 'row' agora é corretamente tipado como T */}
           {data.map((row, idx) => (
             <tr key={idx} className="hover:bg-gray-50 transition-colors">
               {columns.map((col, colIdx) => (
                 <td key={colIdx} className={`px-6 py-4 text-sm ${col.className || 'text-gray-600'}`}>
-                  {col.render ? col.render(row) : row[col.key || '']}
+                  {
+                    // 4. Lógica de renderização corrigida e segura
+                    col.render
+                      ? col.render(row)
+                      : (col.key ? row[col.key] : null) as ReactNode
+                  }
                 </td>
               ))}
               {actions && (
@@ -67,4 +78,3 @@ export default function Table({ columns, data, actions }: TableProps) {
     </div>
   )
 }
-

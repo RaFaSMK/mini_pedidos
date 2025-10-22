@@ -23,9 +23,8 @@ export default function SidebarButton({ icon, label, active, onClick, sidebarOpe
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-        active ? 'bg-emerald-700 text-white' : 'text-emerald-100 hover:bg-emerald-700'
-      }`}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${active ? 'bg-emerald-700 text-white' : 'text-emerald-100 hover:bg-emerald-700'
+        }`}
     >
       <Icon size={20} />
       {sidebarOpen && <span>{label}</span>}

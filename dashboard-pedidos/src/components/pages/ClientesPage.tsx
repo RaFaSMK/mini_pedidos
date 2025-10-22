@@ -1,21 +1,16 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import axios from "axios"
+import * as clienteService from "@/services/clienteService"
+import { Cliente } from "@/services/clienteService"
+
 import PageHeader from "../PageHeader"
 import SearchBar from "../SearchBar"
-import Table from "../Table"
+import Table, { Column, Action } from "../Table"
 import Modal from "../Modal"
 import Input from "../Input"
 import EmptyState from "../EmptyState"
 import { Users, Eye, Edit2, Trash2 } from "lucide-react"
-
-interface Cliente {
-  id: number
-  nome: string
-  email: string
-
-}
 
 interface ClientesPageProps {
   showToast: (message: string, type: 'success' | 'error' | 'info') => void
@@ -38,8 +33,8 @@ export default function ClientesPage({ showToast }: ClientesPageProps) {
   const fetchClientes = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await axios.get('http://localhost:3001/api/clientes')
-      setClientes(response.data)
+      const data = await clienteService.getAllClientes()
+      setClientes(data)
     } catch (error) {
       showToast('Erro ao carregar clientes', 'error')
       console.error(error)
@@ -76,10 +71,10 @@ export default function ClientesPage({ showToast }: ClientesPageProps) {
   const handleSubmit = useCallback(async () => {
     try {
       if (editingId) {
-        await axios.put(`http://localhost:3001/api/clientes/${editingId}`, formData)
+        await clienteService.updateCliente(editingId, formData)
         showToast('Cliente atualizado com sucesso!', 'success')
       } else {
-        await axios.post('http://localhost:3001/api/clientes', formData)
+        await clienteService.createCliente(formData)
         showToast('Cliente cadastrado com sucesso!', 'success')
       }
       closeModal()
@@ -94,7 +89,7 @@ export default function ClientesPage({ showToast }: ClientesPageProps) {
   const handleDelete = useCallback(async (id: number) => {
     if (window.confirm('Deseja realmente deletar este cliente?')) {
       try {
-        await axios.delete(`http://localhost:3001/api/clientes/${id}`)
+        await clienteService.deleteCliente(id)
         showToast('Cliente deletado com sucesso!', 'success')
         fetchClientes()
       } catch (error) {
@@ -109,12 +104,12 @@ export default function ClientesPage({ showToast }: ClientesPageProps) {
     c.email.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const columns = [
+  const columns: Column<Cliente>[] = [
     { label: 'Nome', key: 'nome', className: 'text-gray-900 font-medium' },
     { label: 'Email', key: 'email' },
   ]
 
-  const actions = [
+  const actions: Action<Cliente>[] = [
     { icon: Eye, onClick: (row: Cliente) => alert(`Visualizar ${row.nome}`), className: 'text-blue-600 hover:bg-blue-50', title: 'Visualizar' },
     { icon: Edit2, onClick: (row: Cliente) => handleOpenEditModal(row), className: 'text-emerald-600 hover:bg-emerald-50', title: 'Editar' },
     { icon: Trash2, onClick: (row: Cliente) => handleDelete(row.id), className: 'text-red-600 hover:bg-red-50', title: 'Deletar' }
@@ -135,9 +130,12 @@ export default function ClientesPage({ showToast }: ClientesPageProps) {
       ) : filteredClientes.length === 0 ? (
         <EmptyState icon={Users} title="Nenhum cliente encontrado" description="Adicione seu primeiro cliente para começar" />
       ) : (
-        <Table columns={columns} data={filteredClientes} actions={actions} />
+        <Table<Cliente>
+          columns={columns}
+          data={filteredClientes}
+          actions={actions}
+        />
       )}
-
       <Modal
         isOpen={showModal}
         onClose={closeModal}

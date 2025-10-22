@@ -6,6 +6,8 @@ import { useState } from "react"
 import Logo from "../../public/logo.png"
 import SidebarButton from "./SidebarButton"
 import LogoutSidebarButton from "./LogoutSidebarButton"
+import { useRouter } from 'next/navigation';
+
 
 interface SidebarProps {
   currentPage: string
@@ -15,7 +17,10 @@ interface SidebarProps {
 export default function Sidebar({ currentPage, setCurrentPage }: SidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
+  const router = useRouter()
+
   return (
+
     <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-linear-to-b from-emerald-900 to-emerald-800 min-h-screen transition-all duration-300 flex flex-col`}>
       <div className="p-6 flex items-center justify-between border-b border-emerald-700">
         {sidebarOpen && (
@@ -63,10 +68,10 @@ export default function Sidebar({ currentPage, setCurrentPage }: SidebarProps) {
       </nav>
 
       <div className="p-4 border-t border-emerald-700">
-        <LogoutSidebarButton 
+        <LogoutSidebarButton
           icon="LogOut"
           label="Sair"
-          onClick={() => setCurrentPage('login')}
+          onClick={() => router.push('/')}
           sidebarOpen={sidebarOpen}
         />
       </div>

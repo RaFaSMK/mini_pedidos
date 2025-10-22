@@ -1,37 +1,22 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import axios from "axios"
+import * as pedidoService from "@/services/pedidoService"
+import * as clienteService from "@/services/clienteService"
+import * as produtoService from "@/services/produtoService"
+import { Pedido } from "@/services/pedidoService"
+import { Cliente } from "@/services/clienteService"
+import { Produto } from "@/services/produtoService"
+
 import PageHeader from "../PageHeader"
 import SearchBar from "../SearchBar"
-import Table from "../Table"
+// 1. IMPORTE 'Column' E 'Action'
+import Table, { Column, Action } from "../Table"
 import Modal from "../Modal"
 import Select from "../Select"
 import EmptyState from "../EmptyState"
+import StatusBadge from "../StatusBadge"
 import { ShoppingCart, Eye, Edit2 } from "lucide-react"
-
-interface Pedido {
-  id: number
-  cliente: Cliente | string
-  clienteId: number
-  produto: Produto | string
-  produtoId: number
-  quantidade: number
-  total: number
-  status: string
-  data: string
-}
-
-interface Cliente {
-  id: number
-  nome: string
-}
-
-interface Produto {
-  id: number
-  nome: string
-  preco: number
-}
 
 interface PedidosPageProps {
   showToast: (message: string, type: 'success' | 'error' | 'info') => void
@@ -55,8 +40,8 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
   const fetchPedidos = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await axios.get('http://localhost:3001/api/pedidos')
-      setPedidos(response.data)
+      const data = await pedidoService.getAllPedidos()
+      setPedidos(data)
     } catch (error) {
       showToast('Erro ao carregar pedidos', 'error')
       console.error(error)
@@ -67,8 +52,8 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
 
   const fetchClientes = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/clientes')
-      setClientes(response.data)
+      const data = await clienteService.getAllClientes()
+      setClientes(data)
     } catch (error) {
       console.error(error)
     }
@@ -76,8 +61,8 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
 
   const fetchProdutos = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/produtos')
-      setProdutos(response.data)
+      const data = await produtoService.getAllProdutos()
+      setProdutos(data)
     } catch (error) {
       console.error(error)
     }
@@ -98,8 +83,8 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
   const handleOpenEditModal = (pedido: Pedido) => {
     setEditingId(pedido.id)
     setFormData({
-      clienteId: String(pedido.clienteId),
-      produtoId: String(pedido.produtoId),
+      clienteId: String(pedido.cliente_id),
+      produtoId: String(pedido.produtos[0]?.produto.id || ''),
     })
     setShowModal(true)
   }
@@ -118,14 +103,13 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
 
     try {
       if (editingId) {
-        await axios.put(`http://localhost:3001/api/pedidos/${editingId}`, payload)
+        await pedidoService.updatePedido(editingId, payload)
         showToast('Pedido atualizado com sucesso!', 'success')
       } else {
-        await axios.post('http://localhost:3001/api/pedidos', payload)
+        await pedidoService.createPedido(payload)
         showToast('Pedido criado com sucesso!', 'success')
       }
-
-      closeModal() // Use a nova função
+      closeModal()
       fetchPedidos()
     } catch (error) {
       const action = editingId ? 'atualizar' : 'criar'
@@ -134,18 +118,33 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
     }
   }
 
-  const filteredPedidos = pedidos.filter(p => {
-    const clienteNome = typeof p.cliente === 'object' ? p.cliente.nome : p.cliente
-    const produtoNome = typeof p.produto === 'object' ? p.produto.nome : p.produto
+  const handleStatusChange = useCallback(async (pedido: Pedido) => {
+    const newStatus = pedido.status === 'PENDENTE' ? 'PAGO' : 'PENDENTE';
 
-    return (
-      clienteNome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      produtoNome?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    try {
+      await pedidoService.updatePedidoStatus(pedido.id, { status: newStatus });
+      showToast(`Status do pedido #${pedido.id} atualizado!`, 'success');
+      fetchPedidos();
+    } catch (error) {
+      console.error(error);
+      showToast('Erro ao atualizar status', 'error');
+    }
+  }, [showToast, fetchPedidos]);
+
+  const filteredPedidos = pedidos.filter(p => {
+    const clienteNome = p.cliente.nome.toLowerCase();
+
+    const produtoNomes = p.produtos
+      .map(item => item.produto.nome)
+      .join(', ')
+      .toLowerCase();
+
+    const term = searchTerm.toLowerCase();
+
+    return clienteNome.includes(term) || produtoNomes.includes(term);
   })
 
-
-  const columns = [
+  const columns: Column<Pedido>[] = [
     {
       label: 'ID',
       key: 'id',
@@ -156,24 +155,45 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
       label: 'Cliente',
       key: 'cliente',
       className: 'text-gray-900',
-      render: (row: Pedido) =>
-        typeof row.cliente === 'object'
-          ? row.cliente.nome
-          : row.cliente
+      render: (row: Pedido) => row.cliente.nome
     },
     {
       label: 'Produto',
-      key: 'produto',
-      render: (row: Pedido) =>
-        typeof row.produto === 'object'
-          ? row.produto.nome
-          : row.produto
+      key: 'produtos',
+      render: (row: Pedido) => {
+        if (!row.produtos || row.produtos.length === 0) {
+          return "(Nenhum produto)";
+        }
+        return row.produtos
+          .map(item => item.produto.nome)
+          .join(', ');
+      }
     },
-    { label: 'Data', key: 'data' }
+    {
+      label: 'Pagamento',
+      key: 'status',
+      render: (row: Pedido) => (
+        <StatusBadge
+          status={row.status}
+          onClick={() => handleStatusChange(row)}
+        />
+      )
+    },
+    {
+      label: 'Data',
+      key: 'data',
+      render: (row: Pedido) => {
+        if (!row.data) return '-';
+        return new Date(row.data).toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+      }
+    }
   ]
 
-
-  const actions = [
+  const actions: Action<Pedido>[] = [
     { icon: Eye, onClick: (row: Pedido) => alert(`Visualizar pedido #${row.id}`), className: 'text-blue-600 hover:bg-blue-50', title: 'Visualizar' },
     { icon: Edit2, onClick: (row: Pedido) => handleOpenEditModal(row), className: 'text-emerald-600 hover:bg-emerald-50', title: 'Editar' }
   ]
@@ -217,4 +237,4 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
       </Modal>
     </div>
   )
-} 
+}

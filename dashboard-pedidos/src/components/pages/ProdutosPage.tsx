@@ -1,21 +1,17 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import axios from "axios"
+import * as produtoService from "@/services/produtoService"
+import { Produto } from "@/services/produtoService"
+
 import PageHeader from "../PageHeader"
 import SearchBar from "../SearchBar"
-import Table from "../Table"
+// 1. IMPORTE 'Column' E 'Action'
+import Table, { Column, Action } from "../Table"
 import Modal from "../Modal"
 import Input from "../Input"
 import EmptyState from "../EmptyState"
 import { Package, Edit2, Trash2 } from "lucide-react"
-
-
-interface Produto {
-  id: number
-  nome: string
-  preco: number
-}
 
 interface ProdutosPageProps {
   showToast: (message: string, type: 'success' | 'error' | 'info') => void
@@ -31,16 +27,14 @@ export default function ProdutosPage({ showToast }: ProdutosPageProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(false)
-
   const [formData, setFormData] = useState(initialFormData)
-
   const [editingId, setEditingId] = useState<number | null>(null)
 
   const fetchProdutos = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await axios.get('http://localhost:3001/api/produtos')
-      setProdutos(response.data)
+      const data = await produtoService.getAllProdutos()
+      setProdutos(data)
     } catch (error) {
       showToast('Erro ao carregar produtos', 'error')
       console.error(error)
@@ -82,10 +76,10 @@ export default function ProdutosPage({ showToast }: ProdutosPageProps) {
 
     try {
       if (editingId) {
-        await axios.put(`http://localhost:3001/api/produtos/${editingId}`, payload)
+        await produtoService.updateProduto(editingId, payload)
         showToast('Produto atualizado com sucesso!', 'success')
       } else {
-        await axios.post('http://localhost:3001/api/produtos', payload)
+        await produtoService.createProduto(payload)
         showToast('Produto cadastrado com sucesso!', 'success')
       }
       closeModal()
@@ -100,7 +94,7 @@ export default function ProdutosPage({ showToast }: ProdutosPageProps) {
   const handleDelete = async (id: number) => {
     if (window.confirm('Deseja realmente deletar este produto?')) {
       try {
-        await axios.delete(`http://localhost:3001/api/produtos/${id}`)
+        await produtoService.deleteProduto(id)
         showToast('Produto deletado com sucesso!', 'success')
         fetchProdutos()
       } catch (error) {
@@ -114,12 +108,12 @@ export default function ProdutosPage({ showToast }: ProdutosPageProps) {
     p.nome.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const columns = [
+  const columns: Column<Produto>[] = [
     { label: 'Nome', key: 'nome', className: 'text-gray-900 font-medium' },
-    { label: 'Preço', key: 'preco' },
+    { label: 'Preço', key: 'preco', render: (row: Produto) => `R$ ${row.preco.toFixed(2)}` },
   ]
 
-  const actions = [
+  const actions: Action<Produto>[] = [
     { icon: Edit2, onClick: (row: Produto) => handleOpenEditModal(row), className: 'text-emerald-600 hover:bg-emerald-50', title: 'Editar' },
     { icon: Trash2, onClick: (row: Produto) => handleDelete(row.id), className: 'text-red-600 hover:bg-red-50', title: 'Deletar' }
   ]

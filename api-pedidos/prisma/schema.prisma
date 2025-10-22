@@ -27,6 +27,7 @@ model Pedido {
   cliente    Cliente  @relation(fields: [cliente_id], references: [id])
   status     String   @default("PENDENTE")
   data       DateTime @default(now())
+  total      Decimal 
   produtos   PedidoProduto[]
 }
 
