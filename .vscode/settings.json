@@ -9,6 +9,16 @@
       "name": "api_pedidos",
       "database": "api_pedidos",
       "username": "pmfdtidev"
+    },
+    {
+      "ssh": "Disabled",
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "mini_pedidos",
+      "database": "mini_pedidos",
+      "username": "pedidos"
     }
   ]
 }
