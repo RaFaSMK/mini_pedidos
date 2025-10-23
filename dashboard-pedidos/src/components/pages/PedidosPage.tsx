@@ -212,7 +212,9 @@ export default function PedidosPage({ showToast }: PedidosPageProps) {
       ) : filteredPedidos.length === 0 ? (
         <EmptyState icon={ShoppingCart} title="Nenhum pedido encontrado" description="Crie seu primeiro pedido para começar" />
       ) : (
-        <Table columns={columns} data={filteredPedidos} actions={actions} />
+        <div className="w-full overflow-x-auto">
+          <Table columns={columns} data={filteredPedidos} actions={actions} />
+        </div>
       )}
 
       <Modal

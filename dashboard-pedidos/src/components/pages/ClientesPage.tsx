@@ -10,7 +10,7 @@ import Table, { Column, Action } from "../Table"
 import Modal from "../Modal"
 import Input from "../Input"
 import EmptyState from "../EmptyState"
-import { Users, Eye, Edit2, Trash2 } from "lucide-react"
+import { Users, Edit2, Trash2 } from "lucide-react"
 
 interface ClientesPageProps {
   showToast: (message: string, type: 'success' | 'error' | 'info') => void
@@ -110,7 +110,6 @@ export default function ClientesPage({ showToast }: ClientesPageProps) {
   ]
 
   const actions: Action<Cliente>[] = [
-    { icon: Eye, onClick: (row: Cliente) => alert(`Visualizar ${row.nome}`), className: 'text-blue-600 hover:bg-blue-50', title: 'Visualizar' },
     { icon: Edit2, onClick: (row: Cliente) => handleOpenEditModal(row), className: 'text-emerald-600 hover:bg-emerald-50', title: 'Editar' },
     { icon: Trash2, onClick: (row: Cliente) => handleDelete(row.id), className: 'text-red-600 hover:bg-red-50', title: 'Deletar' }
   ]

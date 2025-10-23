@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OTicket",
+  title: "OTicket - Sistema de Pedidos",
   description: "Gestão de eventos",
 };
 

@@ -26,7 +26,7 @@ interface TableProps<T> {
 export default function Table<T extends object>({ columns, data, actions }: TableProps<T>) {
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-      <table className="w-full">
+      <table className="w-full min-w-max">
         <thead className="bg-gray-50 border-b border-gray-200">
           <tr>
             {columns.map((col, idx) => (
